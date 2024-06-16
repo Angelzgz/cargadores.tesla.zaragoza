@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cargadores Tesla Puerto Venecia</title>
+    <title>Cambio de Estado de Imágenes</title>
     <style>
         * {
             box-sizing: border-box;
@@ -16,7 +16,7 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Estilo de fuente más moderno */
             background-color: black;
             color: white;
         }
@@ -34,7 +34,7 @@
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
-            border-radius: 10px;
+            border-radius: 10px; /* Esquinas redondeadas */
         }
 
         .images {
@@ -47,27 +47,27 @@
 
         .image-container {
             position: relative;
-            width: calc(50% - 10px);
-            max-width: 300px;
+            width: calc(50% - 10px); /* Ajuste para dos columnas en móvil */
+            max-width: 300px; /* Tamaño máximo para la imagen */
             cursor: pointer;
             text-align: center;
             color: white;
             margin-bottom: 20px;
-            border-radius: 10px;
-            overflow: hidden;
-            background-color: rgba(0, 0, 0, 0.3);
-            transition: background-color 0.3s ease;
+            border-radius: 10px; /* Esquinas redondeadas */
+            overflow: hidden; /* Para asegurar que las esquinas redondeadas se apliquen correctamente */
+            background-color: rgba(0, 0, 0, 0.3); /* Fondo semi-transparente para resaltar */
+            transition: background-color 0.3s ease; /* Transición suave de color de fondo */
         }
 
         .image-container:hover {
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.5); /* Color de fondo más oscuro al pasar el ratón */
         }
 
         .image-container img {
             width: 100%;
             height: auto;
             object-fit: cover;
-            border-radius: 10px;
+            border-radius: 10px; /* Esquinas redondeadas */
         }
 
         .image-description {
@@ -83,8 +83,8 @@
             background-color: rgba(0, 0, 0, 0.7);
             padding: 10px 0;
             font-size: 16px;
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
+            border-bottom-left-radius: 10px; /* Esquinas redondeadas */
+            border-bottom-right-radius: 10px; /* Esquinas redondeadas */
         }
 
         .out-of-service-button {
@@ -96,7 +96,7 @@
             font-size: 12px;
             cursor: pointer;
             z-index: 1;
-            border-radius: 5px;
+            border-radius: 5px; /* Esquinas redondeadas */
         }
 
         .out-of-service-overlay {
@@ -112,12 +112,12 @@
             color: white;
             font-size: 24px;
             font-weight: bold;
-            border-radius: 10px;
+            border-radius: 10px; /* Esquinas redondeadas */
         }
 
         @media only screen and (max-width: 600px) {
             .image-container {
-                width: calc(100% - 20px);
+                width: calc(100% - 20px); /* Ajuste para una columna completa en móvil */
                 margin-bottom: 10px;
             }
         }
@@ -130,7 +130,7 @@
     <div class="images">
         <div class="image-container-wrapper">
             <button class="out-of-service-button" onclick="markOutOfService(event, this)">Fuera de Servicio</button>
-            <div class="image-container" data-charger-id="charger1" onclick="toggleStatus(this)">
+            <div class="image-container" onclick="toggleStatus(this)">
                 <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 1">
                 <div class="status" style="background-color: green;">Libre</div>
                 <div class="out-of-service-overlay">X</div>
@@ -139,7 +139,7 @@
         </div>
         <div class="image-container-wrapper">
             <button class="out-of-service-button" onclick="markOutOfService(event, this)">Fuera de Servicio</button>
-            <div class="image-container" data-charger-id="charger2" onclick="toggleStatus(this)">
+            <div class="image-container" onclick="toggleStatus(this)">
                 <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 2">
                 <div class="status" style="background-color: green;">Libre</div>
                 <div class="out-of-service-overlay">X</div>
@@ -148,7 +148,7 @@
         </div>
         <div class="image-container-wrapper">
             <button class="out-of-service-button" onclick="markOutOfService(event, this)">Fuera de Servicio</button>
-            <div class="image-container" data-charger-id="charger3" onclick="toggleStatus(this)">
+            <div class="image-container" onclick="toggleStatus(this)">
                 <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 3">
                 <div class="status" style="background-color: green;">Libre</div>
                 <div class="out-of-service-overlay">X</div>
@@ -157,98 +157,36 @@
         </div>
     </div>
 
-    <!-- Firebase scripts -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js"></script>
-
     <script>
-        // Configura la conexión con Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyByTpKLY088ztiSBAgcx-c1K-_lkKtSNOA",
-            authDomain: "cargadores-tesla.firebaseapp.com",
-            databaseURL: "https://cargadores-tesla-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "cargadores-tesla",
-            storageBucket: "cargadores-tesla.appspot.com",
-            messagingSenderId: "275536311215",
-            appId: "1:275536311215:web:dddfe5d379cd97d294b55a"
-			measurementId: "G-V4ZDQ11VT8"
-        };
-
-        // Inicializa Firebase
-        firebase.initializeApp(firebaseConfig);
-
         function toggleStatus(element) {
             const statusDiv = element.querySelector('.status');
-            const chargerId = element.dataset.chargerId;
-
-            // Obtiene una referencia a la base de datos
-            const database = firebase.database();
-            const chargersRef = database.ref('chargers/' + chargerId);
-
-            // Cambia el estado
-            chargersRef.once('value', function(snapshot) {
-                let newState;
-                if (snapshot.val().status === 'Libre') {
-                    newState = 'Ocupado';
-                } else {
-                    newState = 'Libre';
-                }
-                statusDiv.textContent = newState;
-                statusDiv.style.backgroundColor = newState === 'Libre' ? 'green' : 'red';
-
-                // Actualiza el estado en Firebase
-                chargersRef.update({
-                    status: newState
-                });
-            });
+            if (statusDiv.textContent === 'Libre') {
+                statusDiv.textContent = 'Ocupado';
+                statusDiv.style.backgroundColor = 'red';
+            } else {
+                statusDiv.textContent = 'Libre';
+                statusDiv.style.backgroundColor = 'green';
+            }
         }
 
         function markOutOfService(event, button) {
             event.stopPropagation();
             const container = button.nextElementSibling;
             const overlay = container.querySelector('.out-of-service-overlay');
-            const chargerId = container.dataset.chargerId;
-
-            // Obtiene una referencia a la base de datos
-            const database = firebase.database();
-            const chargersRef = database.ref('chargers/' + chargerId);
-
-            // Muestra o oculta el overlay de "Fuera de Servicio"
-            if (overlay.style.display === 'flex') {
-                overlay.style.display = 'none';
-            } else {
-                overlay.style.display = 'flex';
-            }
-
-            // Actualiza el estado en Firebase
-            chargersRef.update({
-                outOfService: overlay.style.display === 'flex'
-            });
+            overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
         }
-
-        // Escucha cambios en el estado de los cargadores
-        firebase.database().ref('chargers').on('child_changed', function(snapshot) {
-            const chargerId = snapshot.key;
-            const chargerData = snapshot.val();
-            const chargerContainer = document.querySelector(`[data-charger-id="${chargerId}"]`);
-
-            if (chargerContainer) {
-                const statusDiv = chargerContainer.querySelector('.status');
-                const overlay = chargerContainer.querySelector('.out-of-service-overlay');
-
-                // Actualiza la interfaz de usuario según los datos de Firebase
-                if (statusDiv) {
-                    statusDiv.textContent = chargerData.status;
-                    statusDiv.style.backgroundColor = chargerData.status === 'Libre' ? 'green' : 'red';
-                }
-
-                if (overlay) {
-                    overlay.style.display = chargerData.outOfService ? 'flex' : 'none';
-                }
-            }
-        });
+		// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCx--CDxt6eTd4i6rx75293-5Dn_7GUbEE",
+  authDomain: "cargadores-tesla-zaragoza.firebaseapp.com",
+  databaseURL: "https://cargadores-tesla-zaragoza-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "cargadores-tesla-zaragoza",
+  storageBucket: "cargadores-tesla-zaragoza.appspot.com",
+  messagingSenderId: "18030805846",
+  appId: "1:18030805846:web:6873acd0b4c0542e678cf7",
+  measurementId: "G-GY0CGVQVPZ"
+};
     </script>
 
 </body>
 </html>
-
