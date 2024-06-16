@@ -3,190 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cambio de Estado de Imágenes</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+    <title>Estado de Cargadores Tesla</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.buttons button');
 
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Estilo de fuente más moderno */
-            background-color: black;
-            color: white;
-        }
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const charger = this.closest('.charger');
+                    const statusText = charger.querySelector('.status');
 
-        .background-logo {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%;
-            height: 80%;
-            opacity: 0.1;
-            z-index: -1;
-            background-image: url('https://upload.wikimedia.org/wikipedia/commons/b/bb/Tesla_T_symbol.svg');
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: contain;
-            border-radius: 10px; /* Esquinas redondeadas */
-        }
+                    // Cambiar clase del cargador
+                    charger.classList.remove('free', 'occupied', 'out-of-service');
+                    charger.classList.add(this.className);
 
-        .images {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            padding: 10px;
-        }
-
-        .image-container {
-            position: relative;
-            width: calc(50% - 10px); /* Ajuste para dos columnas en móvil */
-            max-width: 300px; /* Tamaño máximo para la imagen */
-            cursor: pointer;
-            text-align: center;
-            color: white;
-            margin-bottom: 20px;
-            border-radius: 10px; /* Esquinas redondeadas */
-            overflow: hidden; /* Para asegurar que las esquinas redondeadas se apliquen correctamente */
-            background-color: rgba(0, 0, 0, 0.3); /* Fondo semi-transparente para resaltar */
-            transition: background-color 0.3s ease; /* Transición suave de color de fondo */
-        }
-
-        .image-container:hover {
-            background-color: rgba(0, 0, 0, 0.5); /* Color de fondo más oscuro al pasar el ratón */
-        }
-
-        .image-container img {
-            width: 100%;
-            height: auto;
-            object-fit: cover;
-            border-radius: 10px; /* Esquinas redondeadas */
-        }
-
-        .image-description {
-            font-size: 14px;
-            margin-top: 5px;
-        }
-
-        .status {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 10px 0;
-            font-size: 16px;
-            border-bottom-left-radius: 10px; /* Esquinas redondeadas */
-            border-bottom-right-radius: 10px; /* Esquinas redondeadas */
-        }
-
-        .out-of-service-button {
-            display: block;
-            margin: 10px auto;
-            background-color: yellow;
-            border: none;
-            padding: 5px 10px;
-            font-size: 12px;
-            cursor: pointer;
-            z-index: 1;
-            border-radius: 5px; /* Esquinas redondeadas */
-        }
-
-        .out-of-service-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 0, 0, 0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            border-radius: 10px; /* Esquinas redondeadas */
-        }
-
-        @media only screen and (max-width: 600px) {
-            .image-container {
-                width: calc(100% - 20px); /* Ajuste para una columna completa en móvil */
-                margin-bottom: 10px;
-            }
-        }
-    </style>
+                    // Mostrar estado seleccionado sobre la imagen
+                    statusText.textContent = this.textContent;
+                    statusText.style.backgroundColor = getComputedStyle(this).backgroundColor;
+                    statusText.style.display = 'block';
+                });
+            });
+        });
+    </script>
 </head>
 <body>
-
-    <div class="background-logo"></div>
-
-    <div class="images">
-        <div class="image-container-wrapper">
-            <button class="out-of-service-button" onclick="markOutOfService(event, this)">Fuera de Servicio</button>
-            <div class="image-container" onclick="toggleStatus(this)">
-                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 1">
-                <div class="status" style="background-color: green;">Libre</div>
-                <div class="out-of-service-overlay">X</div>
+    <div class="container">
+        <header>
+            <img src="tesla_logo.png" alt="Logo de Tesla">
+            <h1>Estado de Cargadores Tesla</h1>
+        </header>
+        
+        <div class="charger-section">
+            <div class="charger">
+                <img src="https://hips.hearstapps.com/es.h-cdn.co/cades/contenidos/1050068-01-E_2.jpg" alt="Cargador 1">
+                <div class="buttons">
+                    <button class="free">Libre</button>
+                    <button class="occupied">Ocupado</button>
+                    <button class="out-of-service">Fuera de Servicio</button>
+                </div>
+                <div class="status"></div>
             </div>
-            <div class="image-description">Cargador abierto todas marcas</div>
         </div>
-        <div class="image-container-wrapper">
-            <button class="out-of-service-button" onclick="markOutOfService(event, this)">Fuera de Servicio</button>
-            <div class="image-container" onclick="toggleStatus(this)">
-                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 2">
-                <div class="status" style="background-color: green;">Libre</div>
-                <div class="out-of-service-overlay">X</div>
+        
+        <div class="charger-section">
+            <div class="charger">
+                <img src="https://hips.hearstapps.com/es.h-cdn.co/cades/contenidos/1050068-01-E_2.jpg" alt="Cargador 2">
+                <div class="buttons">
+                    <button class="free">Libre</button>
+                    <button class="occupied">Ocupado</button>
+                    <button class="out-of-service">Fuera de Servicio</button>
+                </div>
+                <div class="status"></div>
             </div>
-            <div class="image-description">Cargador 2</div>
         </div>
-        <div class="image-container-wrapper">
-            <button class="out-of-service-button" onclick="markOutOfService(event, this)">Fuera de Servicio</button>
-            <div class="image-container" onclick="toggleStatus(this)">
-                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 3">
-                <div class="status" style="background-color: green;">Libre</div>
-                <div class="out-of-service-overlay">X</div>
+        
+        <div class="charger-section">
+            <div class="charger">
+                <img src="https://hips.hearstapps.com/es.h-cdn.co/cades/contenidos/1050068-01-E_2.jpg" alt="Cargador 3">
+                <div class="buttons">
+                    <button class="free">Libre</button>
+                    <button class="occupied">Ocupado</button>
+                    <button class="out-of-service">Fuera de Servicio</button>
+                </div>
+                <div class="status"></div>
             </div>
-            <div class="image-description">Cargador 1</div>
         </div>
     </div>
+	<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js"></script>
+<script>
+    // Configuración de Firebase
+    const firebaseConfig = {
+    apiKey: "AIzaSyCx--CDxt6eTd4i6rx75293-5Dn_7GUbEE",
+    authDomain: "cargadores-tesla-zaragoza.firebaseapp.com",
+    databaseURL: "https://cargadores-tesla-zaragoza-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "cargadores-tesla-zaragoza",
+    storageBucket: "cargadores-tesla-zaragoza.appspot.com",
+    messagingSenderId: "18030805846",
+    appId: "1:18030805846:web:6873acd0b4c0542e678cf7",
+    measurementId: "G-GY0CGVQVPZ"
+    };
 
-    <script>
-        function toggleStatus(element) {
-            const statusDiv = element.querySelector('.status');
-            if (statusDiv.textContent === 'Libre') {
-                statusDiv.textContent = 'Ocupado';
-                statusDiv.style.backgroundColor = 'red';
-            } else {
-                statusDiv.textContent = 'Libre';
-                statusDiv.style.backgroundColor = 'green';
-            }
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Referencia a la base de datos
+    const database = firebase.database();
+
+    // Referencia a los cargadores en la base de datos
+    const chargersRef = database.ref('chargers');
+
+    // Función para actualizar el estado del cargador en Firebase
+    function actualizarEstadoCargador(id, estado) {
+        chargersRef.child(id).update({ estado: estado });
+    }
+
+    // Escuchar cambios en los estados de los cargadores
+    chargersRef.on('child_changed', snapshot => {
+        const chargerData = snapshot.val();
+        const chargerElement = document.getElementById(chargerData.id);
+        if (chargerElement) {
+            const statusText = chargerElement.querySelector('.status');
+            statusText.textContent = chargerData.estado;
+            statusText.style.backgroundColor = chargerData.color;
+            statusText.style.display = 'block';
         }
+    });
 
-        function markOutOfService(event, button) {
-            event.stopPropagation();
-            const container = button.nextElementSibling;
-            const overlay = container.querySelector('.out-of-service-overlay');
-            overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
-        }
-		// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCx--CDxt6eTd4i6rx75293-5Dn_7GUbEE",
-  authDomain: "cargadores-tesla-zaragoza.firebaseapp.com",
-  databaseURL: "https://cargadores-tesla-zaragoza-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "cargadores-tesla-zaragoza",
-  storageBucket: "cargadores-tesla-zaragoza.appspot.com",
-  messagingSenderId: "18030805846",
-  appId: "1:18030805846:web:6873acd0b4c0542e678cf7",
-  measurementId: "G-GY0CGVQVPZ"
-};
-    </script>
+    // Evento click en los botones
+    document.addEventListener('DOMContentLoaded', function() {
+        const buttons = document.querySelectorAll('.buttons button');
 
+        buttons.forEach(button => {
+            button.addEventListener('click', function() {
+                const charger = this.closest('.charger');
+                const chargerId = charger.getAttribute('id');
+                const estado = this.textContent.toLowerCase();
+                const color = getComputedStyle(this).backgroundColor;
+
+                // Actualizar estado en Firebase
+                actualizarEstadoCargador(chargerId, estado);
+
+                // Mostrar estado seleccionado sobre la imagen
+                const statusText = charger.querySelector('.status');
+                statusText.textContent = estado.toUpperCase();
+                statusText.style.backgroundColor = color;
+                statusText.style.display = 'block';
+            });
+        });
+    });
+</script>
 </body>
 </html>

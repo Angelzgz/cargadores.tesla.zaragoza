@@ -1,0 +1,92 @@
+body {
+    background-color: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+header {
+    display: flex;
+    align-items: center;
+}
+
+header img {
+    height: 50px;
+    margin-right: 10px;
+}
+
+header h1 {
+    font-size: 24px;
+    margin: 0;
+}
+
+.charger-section {
+    margin-top: 20px;
+}
+
+.charger {
+    position: relative;
+    display: inline-block;
+    width: 30%; /* Ajustar el ancho del cargador */
+    margin-right: 10px; /* Espacio entre cargadores */
+}
+
+.charger img {
+    width: 100%;
+    display: block;
+    border-radius: 5px;
+    max-height: 200px; /* Ajustar la altura máxima para evitar que las imágenes sean demasiado grandes */
+    object-fit: cover; /* Ajustar para cubrir el contenedor sin deformar la imagen */
+}
+
+.buttons {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.buttons button {
+    display: block;
+    width: 80px;
+    margin-bottom: 5px;
+    padding: 5px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.free {
+    background-color: #4CAF50;
+}
+
+.occupied {
+    background-color: #FF0000;
+}
+
+.out-of-service {
+    background-color: yellow; /* Cambiar color a amarillo */
+    color: #000; /* Cambiar color del texto a negro */
+}
+
+.status {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #000; /* Cambiar color del texto a negro */
+    padding: 5px 10px;
+    border-radius: 3px;
+    display: none; /* Ocultar inicialmente el estado */
+    z-index: 10;
+}
+
+.charger:hover .status {
+    display: block; /* Mostrar el estado al hacer hover sobre el cargador */
+}

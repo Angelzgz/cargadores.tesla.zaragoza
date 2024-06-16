@@ -1,0 +1,20 @@
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const buttons = document.querySelectorAll('.buttons button');
+
+        buttons.forEach(button => {
+            button.addEventListener('click', function() {
+                const charger = this.closest('.charger');
+                const statusText = charger.querySelector('.status');
+
+                // Cambiar clase del cargador
+                charger.classList.remove('free', 'occupied', 'out-of-service');
+                charger.classList.add(this.className);
+
+                // Mostrar estado seleccionado sobre la imagen
+                statusText.textContent = this.textContent;
+                statusText.style.display = 'block';
+            });
+        });
+    });
+</script>
