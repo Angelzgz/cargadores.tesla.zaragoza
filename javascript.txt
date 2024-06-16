@@ -1,20 +1,44 @@
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const buttons = document.querySelectorAll('.buttons button');
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCx--CDxt6eTd4i6rx75293-5Dn_7GUbEE",
+  authDomain: "cargadores-tesla-zaragoza.firebaseapp.com",
+  databaseURL: "https://cargadores-tesla-zaragoza-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "cargadores-tesla-zaragoza",
+  storageBucket: "cargadores-tesla-zaragoza.appspot.com",
+  messagingSenderId: "18030805846",
+  appId: "1:18030805846:web:6873acd0b4c0542e678cf7",
+  measurementId: "G-GY0CGVQVPZ"
+};
 
-        buttons.forEach(button => {
-            button.addEventListener('click', function() {
-                const charger = this.closest('.charger');
-                const statusText = charger.querySelector('.status');
+firebase.initializeApp(firebaseConfig);
 
-                // Cambiar clase del cargador
-                charger.classList.remove('free', 'occupied', 'out-of-service');
-                charger.classList.add(this.className);
+// Referencia a la base de datos en tiempo real de Firebase
+var database = firebase.database();
 
-                // Mostrar estado seleccionado sobre la imagen
-                statusText.textContent = this.textContent;
-                statusText.style.display = 'block';
-            });
-        });
+// Función para cambiar el estado de un cargador
+function changeStatus(chargerId) {
+  var chargerRef = database.ref('chargers/' + chargerId);
+
+  chargerRef.once('value', function(snapshot) {
+    var currentState = snapshot.val().estado;
+    var newState = getNextState(currentState);
+
+    // Actualizar estado en Firebase
+    chargerRef.update({
+      estado: newState
+    }).then(function() {
+      console.log('Estado de ' + chargerId + ' actualizado a ' + newState);
+    }).catch(function(error) {
+      console.error('Error al actualizar estado: ' + error.message);
     });
-</script>
+  });
+}
+
+// Función auxiliar para obtener el siguiente estado
+function getNextState(currentState) {
+  var estados = ['libre', 'ocupado', 'fuera_de_servicio'];
+  var currentIndex = estados.indexOf(currentState);
+  var nextIndex = (currentIndex + 1) % estados.length;
+  return estados[nextIndex];
+}
+

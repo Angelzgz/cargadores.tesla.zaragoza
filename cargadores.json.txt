@@ -1,0 +1,19 @@
+{
+  "chargers": {
+    "charger1": {
+      "id": "charger1",
+      "estado": "libre",
+      "color": "#4CAF50"
+    },
+    "charger2": {
+      "id": "charger2",
+      "estado": "ocupado",
+      "color": "#FF0000"
+    },
+    "charger3": {
+      "id": "charger3",
+      "estado": "fuera_de_servicio",
+      "color": "yellow"
+    }
+  }
+}
