@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cambio de Estado de Imágenes</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: white;
+        }
+
+        .background-logo {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            opacity: 0.1;
+            z-index: -1;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/b/bb/Tesla_T_symbol.svg');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+        }
+
+        .images {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .image-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            cursor: pointer;
+            text-align: center;
+            color: white;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .status {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px 0;
+            font-size: 16px;
+        }
+
+        .out-of-service-button {
+            display: block;
+            margin: 10px auto;
+            background-color: yellow;
+            border: none;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 1;
+        }
+
+        .out-of-service-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+        }
+    </style>
+
+    <!-- Agregar SDK de Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.6/firebase-database.js"></script>
+    <script>
+      // Configuración de tu aplicación web Firebase
+      const firebaseConfig = {
+        apiKey: "AIzaSyByTpKLY088ztiSBAgcx-c1K-_lkKtSNOA",
+        authDomain: "cargadores-tesla.firebaseapp.com",
+        databaseURL: "https://cargadores-tesla-default-rtdb.europe-west1.firebasedatabase.app/",
+        projectId: "cargadores-tesla",
+        storageBucket: "cargadores-tesla.appspot.com",
+        messagingSenderId: "275536311215",
+        appId: "1:275536311215:web:dddfe5d379cd97d294b55a",
+        measurementId: "G-V4ZDQ11VT8"
+      };
+
+      // Inicializa Firebase
+      firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <script>
+        // Tu código JavaScript para interactuar con Firebase y manejar la base de datos iría aquí
+        document.addEventListener('DOMContentLoaded', async () => {
+            const chargersRef = firebase.database().ref('chargers');
+            const snapshot = await chargersRef.once('value');
+            const chargers = snapshot.val();
+
+            if (chargers) {
+                Object.keys(chargers).forEach(index => {
+                    const charger = chargers[index];
+                    const container = document.querySelector(`.image-container[data-index="${index}"]`);
+                    if (container) {
+                        const statusDiv = container.querySelector('.status');
+                        const overlay = container.querySelector('.out-of-service-overlay');
+                        
+                        statusDiv.textContent = charger.status ? 'Libre' : 'Ocupado';
+                        statusDiv.style.backgroundColor = charger.status ? 'green' : 'red';
+                        
+                        if (charger.outOfService) {
+                            overlay.style.display = 'flex';
+                        }
+                    }
+                });
+            }
+        });
+
+        async function toggleStatus(element, index) {
+            const statusDiv = element.querySelector('.status');
+            const isFree = statusDiv.textContent === 'Libre';
+            
+            statusDiv.textContent = isFree ? 'Ocupado' : 'Libre';
+            statusDiv.style.backgroundColor = isFree ? 'red' : 'green';
+
+            await saveChargerStatus(index, !isFree, element.querySelector('.out-of-service-overlay').style.display === 'flex');
+        }
+
+        async function markOutOfService(event, button, index) {
+            event.stopPropagation();
+            const container = button.nextElementSibling;
+            const overlay = container.querySelector('.out-of-service-overlay');
+            
+            const isOutOfService = overlay.style.display === 'flex';
+            overlay.style.display = isOutOfService ? 'none' : 'flex';
+
+            await saveChargerStatus(index, container.querySelector('.status').textContent === 'Libre', !isOutOfService);
+        }
+
+        async function saveChargerStatus(index, status, outOfService) {
+            await firebase.database().ref(`chargers/${index}`).set({
+                status: status,
+                outOfService: outOfService
+            });
+        }
+    </script>
+</head>
+<body>
+
+    <div class="background-logo"></div>
+
+    <div class="images">
+        <div class="image-container-wrapper">
+            <button class="out-of-service-button" onclick="markOutOfService(event, this, 1)">Fuera de Servicio</button>
+            <div class="image-container" onclick="toggleStatus(this, 1)" data-index="1">
+                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 1">
+                <div class="status" style="background-color: green;">Libre</div>
+                <div class="out-of-service-overlay">X</div>
+            </div>
+        </div>
+        <div class="image-container-wrapper">
+            <button class="out-of-service-button" onclick="markOutOfService(event, this, 2)">Fuera de Servicio</button>
+            <div class="image-container" onclick="toggleStatus(this, 2)" data-index="2">
+                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 2">
+                <div class="status" style="background-color: green;">Libre</div>
+                <div class="out-of-service-overlay">X</div>
+            </div>
+        </div>
+        <div class="image-container-wrapper">
+            <button class="out-of-service-button" onclick="markOutOfService(event, this, 3)">Fuera de Servicio</button>
+            <div class="image-container" onclick="toggleStatus(this, 3)" data-index="3">
+                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 3">
+                <div class="status" style="background-color: green;">Libre</div>
+                <div class="out-of-service-overlay">X</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+
+
