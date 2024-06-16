@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cambio de Estado de Cargadores</title>
+    <title>Cambio de Estado de Imágenes</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             display: flex;
             flex-direction: column;
@@ -34,18 +38,20 @@
 
         .images {
             display: flex;
+            flex-wrap: wrap;
             gap: 20px;
             margin-bottom: 20px;
+            justify-content: center;
         }
 
         .image-container {
             position: relative;
-            width: 200px;
-            height: 200px;
+            width: 100%;
+            max-width: 300px; /* Tamaño máximo para la imagen */
+            height: auto;
             cursor: pointer;
             text-align: center;
             color: white;
-            overflow: hidden; /* Para asegurar que el estado y la superposición se mantengan dentro */
         }
 
         .image-container img {
@@ -72,6 +78,7 @@
             padding: 5px 10px;
             font-size: 12px;
             cursor: pointer;
+            z-index: 1;
         }
 
         .out-of-service-overlay {
@@ -85,8 +92,14 @@
             justify-content: center;
             align-items: center;
             color: white;
-            font-size: 48px;
+            font-size: 24px;
             font-weight: bold;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .image-container {
+                max-width: calc(100vw - 40px); /* Ajuste para móvil */
+            }
         }
     </style>
 </head>
@@ -96,136 +109,50 @@
 
     <div class="images">
         <div class="image-container-wrapper">
-            <button class="out-of-service-button" onclick="markOutOfService(event, this, 1)">Fuera de Servicio</button>
-            <div class="image-container" onclick="toggleStatus(this, 1)" data-index="1">
-                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Cargador 1">
+            <button class="out-of-service-button" onclick="markOutOfService(event, this)">Fuera de Servicio</button>
+            <div class="image-container" onclick="toggleStatus(this)">
+                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 1">
                 <div class="status" style="background-color: green;">Libre</div>
                 <div class="out-of-service-overlay">X</div>
             </div>
         </div>
         <div class="image-container-wrapper">
-            <button class="out-of-service-button" onclick="markOutOfService(event, this, 2)">Fuera de Servicio</button>
-            <div class="image-container" onclick="toggleStatus(this, 2)" data-index="2">
-                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Cargador 2">
+            <button class="out-of-service-button" onclick="markOutOfService(event, this)">Fuera de Servicio</button>
+            <div class="image-container" onclick="toggleStatus(this)">
+                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 2">
                 <div class="status" style="background-color: green;">Libre</div>
                 <div class="out-of-service-overlay">X</div>
             </div>
         </div>
         <div class="image-container-wrapper">
-            <button class="out-of-service-button" onclick="markOutOfService(event, this, 3)">Fuera de Servicio</button>
-            <div class="image-container" onclick="toggleStatus(this, 3)" data-index="3">
-                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Cargador 3">
+            <button class="out-of-service-button" onclick="markOutOfService(event, this)">Fuera de Servicio</button>
+            <div class="image-container" onclick="toggleStatus(this)">
+                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 3">
                 <div class="status" style="background-color: green;">Libre</div>
                 <div class="out-of-service-overlay">X</div>
             </div>
         </div>
     </div>
 
-    <!-- Script para manejar el estado de los cargadores -->
     <script>
-        // Función para marcar un cargador como "Fuera de Servicio"
-        function markOutOfService(event, button, index) {
-            event.stopPropagation(); // Evitar que el clic en el botón propague al contenedor
+        function toggleStatus(element) {
+            const statusDiv = element.querySelector('.status');
+            if (statusDiv.textContent === 'Libre') {
+                statusDiv.textContent = 'Ocupado';
+                statusDiv.style.backgroundColor = 'red';
+            } else {
+                statusDiv.textContent = 'Libre';
+                statusDiv.style.backgroundColor = 'green';
+            }
+        }
+
+        function markOutOfService(event, button) {
+            event.stopPropagation();
             const container = button.nextElementSibling;
             const overlay = container.querySelector('.out-of-service-overlay');
-
-            overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex'; // Alternar visibilidad
-
-            // Guardar el estado en el almacenamiento local (IndexedDB)
-            saveChargerStatus(index, container.querySelector('.status').textContent === 'Libre', overlay.style.display === 'flex');
-        }
-
-        // Función para cambiar el estado "Libre" / "Ocupado" del cargador
-        function toggleStatus(element, index) {
-            const statusDiv = element.querySelector('.status');
-            const isFree = statusDiv.textContent === 'Libre';
-
-            statusDiv.textContent = isFree ? 'Ocupado' : 'Libre'; // Alternar estado visual
-            statusDiv.style.backgroundColor = isFree ? 'red' : 'green'; // Cambiar color de fondo
-
-            // Guardar el estado en el almacenamiento local (IndexedDB)
-            saveChargerStatus(index, !isFree, element.querySelector('.out-of-service-overlay').style.display === 'flex');
-        }
-
-        // Función para guardar el estado del cargador en IndexedDB (almacenamiento local)
-        function saveChargerStatus(index, status, outOfService) {
-            try {
-                // Abrir la base de datos o crearla si no existe
-                const request = window.indexedDB.open('chargersDB', 1);
-                
-                request.onerror = function(event) {
-                    console.error('Error al abrir la base de datos:', event.target.errorCode);
-                };
-                
-                request.onsuccess = function(event) {
-                    const db = event.target.result;
-                    const transaction = db.transaction(['chargers'], 'readwrite');
-                    const chargersStore = transaction.objectStore('chargers');
-
-                    // Guardar el estado actual del cargador
-                    const chargerData = { index: index, status: status, outOfService: outOfService };
-                    chargersStore.put(chargerData);
-
-                    console.log(`Estado del cargador ${index} guardado en IndexedDB`);
-                };
-                
-                request.onupgradeneeded = function(event) {
-                    const db = event.target.result;
-                    db.createObjectStore('chargers', { keyPath: 'index' });
-                    console.log('Almacenamiento de chargers creado');
-                };
-            } catch (error) {
-                console.error('Error al guardar el estado del cargador:', error);
-            }
-        }
-
-        // Función para cargar el estado de los cargadores al cargar la página
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                // Abrir la base de datos y cargar los estados almacenados
-                const request = window.indexedDB.open('chargersDB', 1);
-                
-                request.onerror = function(event) {
-                    console.error('Error al abrir la base de datos:', event.target.errorCode);
-                };
-                
-                request.onsuccess = function(event) {
-                    const db = event.target.result;
-                    const transaction = db.transaction(['chargers'], 'readonly');
-                    const chargersStore = transaction.objectStore('chargers');
-
-                    chargersStore.getAll().onsuccess = function(event) {
-                        const chargers = event.target.result;
-
-                        chargers.forEach(charger => {
-                            updateChargerStatus(charger.index, charger.status, charger.outOfService);
-                        });
-                    };
-                };
-                
-                request.onupgradeneeded = function(event) {
-                    const db = event.target.result;
-                    db.createObjectStore('chargers', { keyPath: 'index' });
-                    console.log('Almacenamiento de chargers creado');
-                };
-            } catch (error) {
-                console.error('Error al cargar los estados de los cargadores:', error);
-            }
-        });
-
-        // Función para actualizar visualmente el estado de un cargador
-        function updateChargerStatus(index, status, outOfService) {
-            const container = document.querySelector(`.image-container[data-index="${index}"]`);
-            if (!container) return;
-
-            const statusDiv = container.querySelector('.status');
-            const overlay = container.querySelector('.out-of-service-overlay');
-
-            statusDiv.textContent = status ? 'Libre' : 'Ocupado';
-            statusDiv.style.backgroundColor = status ? 'green' : 'red';
-
-            overlay.style.display = outOfService ? 'flex' : 'none';
+            overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
         }
     </script>
+
 </body>
 </html>
