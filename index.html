@@ -45,6 +45,7 @@
             cursor: pointer;
             text-align: center;
             color: white;
+            overflow: hidden; /* Para asegurar que el estado y la superposición se mantengan dentro */
         }
 
         .image-container img {
@@ -120,97 +121,103 @@
         </div>
     </div>
 
-    <!-- Agregar SDK de IndexedDB -->
+    <!-- Script para manejar el estado de los cargadores -->
     <script>
-        let db;
+        // Función para marcar un cargador como "Fuera de Servicio"
+        function markOutOfService(event, button, index) {
+            event.stopPropagation(); // Evitar que el clic en el botón propague al contenedor
+            const container = button.nextElementSibling;
+            const overlay = container.querySelector('.out-of-service-overlay');
 
-        // Función para abrir la base de datos
-        function openDB() {
-            return new Promise((resolve, reject) => {
-                const request = window.indexedDB.open('chargersDB', 1);
+            overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex'; // Alternar visibilidad
 
-                request.onerror = function(event) {
-                    console.error('Error al abrir la base de datos:', event.target.errorCode);
-                    reject(event.target.errorCode);
-                };
-
-                request.onsuccess = function(event) {
-                    db = event.target.result;
-                    console.log('Base de datos abierta correctamente');
-                    resolve();
-                };
-
-                request.onupgradeneeded = function(event) {
-                    db = event.target.result;
-                    const chargersStore = db.createObjectStore('chargers', { keyPath: 'index' });
-                    console.log('Almacenamiento de chargers creado');
-                };
-            });
+            // Guardar el estado en el almacenamiento local (IndexedDB)
+            saveChargerStatus(index, container.querySelector('.status').textContent === 'Libre', overlay.style.display === 'flex');
         }
 
-        // Inicialización de la base de datos al cargar la página
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                await openDB();
-                await loadChargerStatusFromDB();
-            } catch (error) {
-                console.error('Error al abrir la base de datos:', error);
-            }
-        });
-
-        // Función para guardar el estado del cargador en IndexedDB
-        async function saveChargerStatus(index, status, outOfService) {
-            const transaction = db.transaction(['chargers'], 'readwrite');
-            const chargersStore = transaction.objectStore('chargers');
-
-            const chargerData = { index: index, status: status, outOfService: outOfService };
-            chargersStore.put(chargerData);
-
-            console.log(`Estado del cargador ${index} guardado en IndexedDB`);
-        }
-
-        // Función para cargar el estado inicial de los cargadores desde IndexedDB
-        async function loadChargerStatusFromDB() {
-            const transaction = db.transaction(['chargers'], 'readonly');
-            const chargersStore = transaction.objectStore('chargers');
-
-            chargersStore.getAll().onsuccess = function(event) {
-                const chargers = event.target.result;
-
-                chargers.forEach(charger => {
-                    updateChargerStatus(charger.index, charger.status, charger.outOfService);
-                });
-            };
-        }
-
+        // Función para cambiar el estado "Libre" / "Ocupado" del cargador
         function toggleStatus(element, index) {
             const statusDiv = element.querySelector('.status');
             const isFree = statusDiv.textContent === 'Libre';
 
-            statusDiv.textContent = isFree ? 'Ocupado' : 'Libre';
-            statusDiv.style.backgroundColor = isFree ? 'red' : 'green';
+            statusDiv.textContent = isFree ? 'Ocupado' : 'Libre'; // Alternar estado visual
+            statusDiv.style.backgroundColor = isFree ? 'red' : 'green'; // Cambiar color de fondo
 
-            const outOfServiceOverlay = element.querySelector('.out-of-service-overlay');
-            const isOutOfService = outOfServiceOverlay.style.display === 'flex';
-
-            saveChargerStatus(index, !isFree, isOutOfService);
+            // Guardar el estado en el almacenamiento local (IndexedDB)
+            saveChargerStatus(index, !isFree, element.querySelector('.out-of-service-overlay').style.display === 'flex');
         }
 
-        function markOutOfService(event, button, index) {
-            event.stopPropagation();
-            const container = button.nextElementSibling;
-            const overlay = container.querySelector('.out-of-service-overlay');
+        // Función para guardar el estado del cargador en IndexedDB (almacenamiento local)
+        function saveChargerStatus(index, status, outOfService) {
+            try {
+                // Abrir la base de datos o crearla si no existe
+                const request = window.indexedDB.open('chargersDB', 1);
+                
+                request.onerror = function(event) {
+                    console.error('Error al abrir la base de datos:', event.target.errorCode);
+                };
+                
+                request.onsuccess = function(event) {
+                    const db = event.target.result;
+                    const transaction = db.transaction(['chargers'], 'readwrite');
+                    const chargersStore = transaction.objectStore('chargers');
 
-            overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
+                    // Guardar el estado actual del cargador
+                    const chargerData = { index: index, status: status, outOfService: outOfService };
+                    chargersStore.put(chargerData);
 
-            const statusDiv = container.querySelector('.status');
-            const isFree = statusDiv.textContent === 'Libre';
-
-            saveChargerStatus(index, isFree, overlay.style.display === 'flex');
+                    console.log(`Estado del cargador ${index} guardado en IndexedDB`);
+                };
+                
+                request.onupgradeneeded = function(event) {
+                    const db = event.target.result;
+                    db.createObjectStore('chargers', { keyPath: 'index' });
+                    console.log('Almacenamiento de chargers creado');
+                };
+            } catch (error) {
+                console.error('Error al guardar el estado del cargador:', error);
+            }
         }
 
+        // Función para cargar el estado de los cargadores al cargar la página
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Abrir la base de datos y cargar los estados almacenados
+                const request = window.indexedDB.open('chargersDB', 1);
+                
+                request.onerror = function(event) {
+                    console.error('Error al abrir la base de datos:', event.target.errorCode);
+                };
+                
+                request.onsuccess = function(event) {
+                    const db = event.target.result;
+                    const transaction = db.transaction(['chargers'], 'readonly');
+                    const chargersStore = transaction.objectStore('chargers');
+
+                    chargersStore.getAll().onsuccess = function(event) {
+                        const chargers = event.target.result;
+
+                        chargers.forEach(charger => {
+                            updateChargerStatus(charger.index, charger.status, charger.outOfService);
+                        });
+                    };
+                };
+                
+                request.onupgradeneeded = function(event) {
+                    const db = event.target.result;
+                    db.createObjectStore('chargers', { keyPath: 'index' });
+                    console.log('Almacenamiento de chargers creado');
+                };
+            } catch (error) {
+                console.error('Error al cargar los estados de los cargadores:', error);
+            }
+        });
+
+        // Función para actualizar visualmente el estado de un cargador
         function updateChargerStatus(index, status, outOfService) {
             const container = document.querySelector(`.image-container[data-index="${index}"]`);
+            if (!container) return;
+
             const statusDiv = container.querySelector('.status');
             const overlay = container.querySelector('.out-of-service-overlay');
 
