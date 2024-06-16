@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cambio de Estado de Imágenes</title>
+    <title>Cambio de Estado de Cargadores</title>
     <style>
         body {
             display: flex;
@@ -58,7 +58,7 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background-color: rgba(0, 255, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.7);
             padding: 10px 0;
             font-size: 16px;
         }
@@ -71,7 +71,6 @@
             padding: 5px 10px;
             font-size: 12px;
             cursor: pointer;
-            z-index: 1;
         }
 
         .out-of-service-overlay {
@@ -89,87 +88,6 @@
             font-weight: bold;
         }
     </style>
-
-    <!-- Importar Firebase SDK -->
-    <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyByTpKLY088ztiSBAgcx-c1K-_lkKtSNOA",
-    authDomain: "cargadores-tesla.firebaseapp.com",
-    databaseURL: "https://cargadores-tesla-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "cargadores-tesla",
-    storageBucket: "cargadores-tesla.appspot.com",
-    messagingSenderId: "275536311215",
-    appId: "1:275536311215:web:dddfe5d379cd97d294b55a",
-    measurementId: "G-V4ZDQ11VT8"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
-        // Acceder a la referencia de la base de datos de cargadores
-        const chargersRef = firebase.database().ref('chargers');
-
-        // Obtener datos de Firebase y actualizar la interfaz
-        chargersRef.once('value', (snapshot) => {
-            snapshot.forEach((childSnapshot) => {
-                const charger = childSnapshot.val();
-                const index = childSnapshot.key;
-                const container = document.querySelector(`.image-container[data-index="${index}"]`);
-
-                if (container) {
-                    const statusDiv = container.querySelector('.status');
-                    const overlay = container.querySelector('.out-of-service-overlay');
-
-                    statusDiv.textContent = charger.status ? 'Libre' : 'Ocupado';
-                    statusDiv.style.backgroundColor = charger.status ? 'green' : 'red';
-
-                    if (charger.outOfService) {
-                        overlay.style.display = 'flex';
-                    }
-                }
-            });
-        });
-
-        // Función para cambiar el estado de un cargador y actualizar Firebase
-        async function toggleStatus(element, index) {
-            const statusDiv = element.querySelector('.status');
-            const isFree = statusDiv.textContent === 'Libre';
-
-            statusDiv.textContent = isFree ? 'Ocupado' : 'Libre';
-            statusDiv.style.backgroundColor = isFree ? 'red' : 'green';
-
-            await saveChargerStatus(index, !isFree, element.querySelector('.out-of-service-overlay').style.display === 'flex');
-        }
-
-        // Función para marcar un cargador como fuera de servicio y actualizar Firebase
-        async function markOutOfService(event, button, index) {
-            event.stopPropagation();
-            const container = button.nextElementSibling;
-            const overlay = container.querySelector('.out-of-service-overlay');
-
-            const isOutOfService = overlay.style.display === 'flex';
-            overlay.style.display = isOutOfService ? 'none' : 'flex';
-
-            await saveChargerStatus(index, container.querySelector('.status').textContent === 'Libre', !isOutOfService);
-        }
-
-        // Función para guardar el estado de un cargador en Firebase
-        async function saveChargerStatus(index, status, outOfService) {
-            await chargersRef.child(index).set({
-                status: status,
-                outOfService: outOfService
-            });
-        }
-    </script>
 </head>
 <body>
 
@@ -179,28 +97,128 @@
         <div class="image-container-wrapper">
             <button class="out-of-service-button" onclick="markOutOfService(event, this, 1)">Fuera de Servicio</button>
             <div class="image-container" onclick="toggleStatus(this, 1)" data-index="1">
-                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 1">
-                <div class="status">Libre</div>
+                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Cargador 1">
+                <div class="status" style="background-color: green;">Libre</div>
                 <div class="out-of-service-overlay">X</div>
             </div>
         </div>
         <div class="image-container-wrapper">
             <button class="out-of-service-button" onclick="markOutOfService(event, this, 2)">Fuera de Servicio</button>
             <div class="image-container" onclick="toggleStatus(this, 2)" data-index="2">
-                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 2">
-                <div class="status">Libre</div>
+                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Cargador 2">
+                <div class="status" style="background-color: green;">Libre</div>
                 <div class="out-of-service-overlay">X</div>
             </div>
         </div>
         <div class="image-container-wrapper">
             <button class="out-of-service-button" onclick="markOutOfService(event, this, 3)">Fuera de Servicio</button>
             <div class="image-container" onclick="toggleStatus(this, 3)" data-index="3">
-                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 3">
-                <div class="status">Libre</div>
+                <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Cargador 3">
+                <div class="status" style="background-color: green;">Libre</div>
                 <div class="out-of-service-overlay">X</div>
             </div>
         </div>
     </div>
 
+    <!-- Agregar SDK de IndexedDB -->
+    <script>
+        let db;
+
+        // Función para abrir la base de datos
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = window.indexedDB.open('chargersDB', 1);
+
+                request.onerror = function(event) {
+                    console.error('Error al abrir la base de datos:', event.target.errorCode);
+                    reject(event.target.errorCode);
+                };
+
+                request.onsuccess = function(event) {
+                    db = event.target.result;
+                    console.log('Base de datos abierta correctamente');
+                    resolve();
+                };
+
+                request.onupgradeneeded = function(event) {
+                    db = event.target.result;
+                    const chargersStore = db.createObjectStore('chargers', { keyPath: 'index' });
+                    console.log('Almacenamiento de chargers creado');
+                };
+            });
+        }
+
+        // Inicialización de la base de datos al cargar la página
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await openDB();
+                await loadChargerStatusFromDB();
+            } catch (error) {
+                console.error('Error al abrir la base de datos:', error);
+            }
+        });
+
+        // Función para guardar el estado del cargador en IndexedDB
+        async function saveChargerStatus(index, status, outOfService) {
+            const transaction = db.transaction(['chargers'], 'readwrite');
+            const chargersStore = transaction.objectStore('chargers');
+
+            const chargerData = { index: index, status: status, outOfService: outOfService };
+            chargersStore.put(chargerData);
+
+            console.log(`Estado del cargador ${index} guardado en IndexedDB`);
+        }
+
+        // Función para cargar el estado inicial de los cargadores desde IndexedDB
+        async function loadChargerStatusFromDB() {
+            const transaction = db.transaction(['chargers'], 'readonly');
+            const chargersStore = transaction.objectStore('chargers');
+
+            chargersStore.getAll().onsuccess = function(event) {
+                const chargers = event.target.result;
+
+                chargers.forEach(charger => {
+                    updateChargerStatus(charger.index, charger.status, charger.outOfService);
+                });
+            };
+        }
+
+        function toggleStatus(element, index) {
+            const statusDiv = element.querySelector('.status');
+            const isFree = statusDiv.textContent === 'Libre';
+
+            statusDiv.textContent = isFree ? 'Ocupado' : 'Libre';
+            statusDiv.style.backgroundColor = isFree ? 'red' : 'green';
+
+            const outOfServiceOverlay = element.querySelector('.out-of-service-overlay');
+            const isOutOfService = outOfServiceOverlay.style.display === 'flex';
+
+            saveChargerStatus(index, !isFree, isOutOfService);
+        }
+
+        function markOutOfService(event, button, index) {
+            event.stopPropagation();
+            const container = button.nextElementSibling;
+            const overlay = container.querySelector('.out-of-service-overlay');
+
+            overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
+
+            const statusDiv = container.querySelector('.status');
+            const isFree = statusDiv.textContent === 'Libre';
+
+            saveChargerStatus(index, isFree, overlay.style.display === 'flex');
+        }
+
+        function updateChargerStatus(index, status, outOfService) {
+            const container = document.querySelector(`.image-container[data-index="${index}"]`);
+            const statusDiv = container.querySelector('.status');
+            const overlay = container.querySelector('.out-of-service-overlay');
+
+            statusDiv.textContent = status ? 'Libre' : 'Ocupado';
+            statusDiv.style.backgroundColor = status ? 'green' : 'red';
+
+            overlay.style.display = outOfService ? 'flex' : 'none';
+        }
+    </script>
 </body>
 </html>
