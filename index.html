@@ -58,7 +58,7 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 255, 0, 0.7);
             padding: 10px 0;
             font-size: 16px;
         }
@@ -90,75 +90,76 @@
         }
     </style>
 
-    <!-- Agregar SDK de Firebase -->
+    <!-- Importar Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.6/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.6/firebase-database.js"></script>
-    <script>
-      // Configuración de tu aplicación web Firebase
-      const firebaseConfig = {
-        apiKey: "AIzaSyByTpKLY088ztiSBAgcx-c1K-_lkKtSNOA",
-        authDomain: "cargadores-tesla.firebaseapp.com",
-        databaseURL: "https://cargadores-tesla-default-rtdb.europe-west1.firebasedatabase.app/",
-        projectId: "cargadores-tesla",
-        storageBucket: "cargadores-tesla.appspot.com",
-        messagingSenderId: "275536311215",
-        appId: "1:275536311215:web:dddfe5d379cd97d294b55a",
-        measurementId: "G-V4ZDQ11VT8"
-      };
-
-      // Inicializa Firebase
-      firebase.initializeApp(firebaseConfig);
-    </script>
 
     <script>
-        // Tu código JavaScript para interactuar con Firebase y manejar la base de datos iría aquí
-        document.addEventListener('DOMContentLoaded', async () => {
-            const chargersRef = firebase.database().ref('chargers');
-            const snapshot = await chargersRef.once('value');
-            const chargers = snapshot.val();
+        // Configuración de tu aplicación web Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyByTpKLY088ztiSBAgcx-c1K-_lkKtSNOA",
+            authDomain: "cargadores-tesla.firebaseapp.com",
+            databaseURL: "https://cargadores-tesla-default-rtdb.europe-west1.firebasedatabase.app/",
+            projectId: "cargadores-tesla",
+            storageBucket: "cargadores-tesla.appspot.com",
+            messagingSenderId: "275536311215",
+            appId: "1:275536311215:web:dddfe5d379cd97d294b55a",
+            measurementId: "G-V4ZDQ11VT8"
+        };
 
-            if (chargers) {
-                Object.keys(chargers).forEach(index => {
-                    const charger = chargers[index];
-                    const container = document.querySelector(`.image-container[data-index="${index}"]`);
-                    if (container) {
-                        const statusDiv = container.querySelector('.status');
-                        const overlay = container.querySelector('.out-of-service-overlay');
-                        
-                        statusDiv.textContent = charger.status ? 'Libre' : 'Ocupado';
-                        statusDiv.style.backgroundColor = charger.status ? 'green' : 'red';
-                        
-                        if (charger.outOfService) {
-                            overlay.style.display = 'flex';
-                        }
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Acceder a la referencia de la base de datos de cargadores
+        const chargersRef = firebase.database().ref('chargers');
+
+        // Obtener datos de Firebase y actualizar la interfaz
+        chargersRef.once('value', (snapshot) => {
+            snapshot.forEach((childSnapshot) => {
+                const charger = childSnapshot.val();
+                const index = childSnapshot.key;
+                const container = document.querySelector(`.image-container[data-index="${index}"]`);
+
+                if (container) {
+                    const statusDiv = container.querySelector('.status');
+                    const overlay = container.querySelector('.out-of-service-overlay');
+
+                    statusDiv.textContent = charger.status ? 'Libre' : 'Ocupado';
+                    statusDiv.style.backgroundColor = charger.status ? 'green' : 'red';
+
+                    if (charger.outOfService) {
+                        overlay.style.display = 'flex';
                     }
-                });
-            }
+                }
+            });
         });
 
+        // Función para cambiar el estado de un cargador y actualizar Firebase
         async function toggleStatus(element, index) {
             const statusDiv = element.querySelector('.status');
             const isFree = statusDiv.textContent === 'Libre';
-            
+
             statusDiv.textContent = isFree ? 'Ocupado' : 'Libre';
             statusDiv.style.backgroundColor = isFree ? 'red' : 'green';
 
             await saveChargerStatus(index, !isFree, element.querySelector('.out-of-service-overlay').style.display === 'flex');
         }
 
+        // Función para marcar un cargador como fuera de servicio y actualizar Firebase
         async function markOutOfService(event, button, index) {
             event.stopPropagation();
             const container = button.nextElementSibling;
             const overlay = container.querySelector('.out-of-service-overlay');
-            
+
             const isOutOfService = overlay.style.display === 'flex';
             overlay.style.display = isOutOfService ? 'none' : 'flex';
 
             await saveChargerStatus(index, container.querySelector('.status').textContent === 'Libre', !isOutOfService);
         }
 
+        // Función para guardar el estado de un cargador en Firebase
         async function saveChargerStatus(index, status, outOfService) {
-            await firebase.database().ref(`chargers/${index}`).set({
+            await chargersRef.child(index).set({
                 status: status,
                 outOfService: outOfService
             });
@@ -174,7 +175,7 @@
             <button class="out-of-service-button" onclick="markOutOfService(event, this, 1)">Fuera de Servicio</button>
             <div class="image-container" onclick="toggleStatus(this, 1)" data-index="1">
                 <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 1">
-                <div class="status" style="background-color: green;">Libre</div>
+                <div class="status">Libre</div>
                 <div class="out-of-service-overlay">X</div>
             </div>
         </div>
@@ -182,7 +183,7 @@
             <button class="out-of-service-button" onclick="markOutOfService(event, this, 2)">Fuera de Servicio</button>
             <div class="image-container" onclick="toggleStatus(this, 2)" data-index="2">
                 <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 2">
-                <div class="status" style="background-color: green;">Libre</div>
+                <div class="status">Libre</div>
                 <div class="out-of-service-overlay">X</div>
             </div>
         </div>
@@ -190,7 +191,7 @@
             <button class="out-of-service-button" onclick="markOutOfService(event, this, 3)">Fuera de Servicio</button>
             <div class="image-container" onclick="toggleStatus(this, 3)" data-index="3">
                 <img src="https://smartchargeamerica.com/wp-content/uploads/2020/01/tesla-wall-connector-third-generation-electric-car-charger-1.jpg" alt="Imagen 3">
-                <div class="status" style="background-color: green;">Libre</div>
+                <div class="status">Libre</div>
                 <div class="out-of-service-overlay">X</div>
             </div>
         </div>
@@ -198,5 +199,3 @@
 
 </body>
 </html>
-
-
